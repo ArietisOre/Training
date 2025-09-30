@@ -1,1 +1,1 @@
-git push
+print("Hello, world!")

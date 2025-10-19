@@ -1,91 +1,87 @@
-TEXTS = [
-    '''Situated about 10 miles west of Kemmerer,
-    Fossil Butte is a ruggedly impressive
-    topographic feature that rises sharply
-    some 1000 feet above Twin Creek Valley
-    to an elevation of more than 7500 feet
-    above sea level. The butte is located just
-    north of US 30 and the Union Pacific Railroad,
-    which traverse the valley.''',
-    '''At the base of Fossil Butte are the bright
-    red, purple, yellow and gray beds of the Wasatch
-    Formation. Eroded portions of these horizontal
-    beds slope gradually upward from the valley floor
-    and steepen abruptly. Overlying them and extending
-    to the top of the butte are the much steeper
-    buff-to-white beds of the Green River Formation,
-    which are about 300 feet thick.''',
-    '''The monument contains 8198 acres and protects
-    a portion of the largest deposit of freshwater fish
-    fossils in the world. The richest fossil fish deposits
-    are found in multiple limestone layers, which lie some
-    100 feet below the top of the butte. The fossils
-    represent several varieties of perch, as well as
-    other freshwater genera and herring similar to those
-    in modern oceans. Other fish such as paddlefish,
-    garpike and stingray are also present.'''
-]
+from random import sample
+import time
 
-registered_users = {"bob": "123", "ann": "pass123", "mike": "password123", "liz": "pass123"}
-name=(input("Insert your username: "))
-password=(input("Insert your password: "))
-print('-' * 50)
-if name not in registered_users.keys():
-    print("unregistered user, terminating the program..")
-    exit()
-elif registered_users.get(name) != password:
-    print("wrong password, terminating the program..")
-    exit()
-else:
-    print(f"""Welcome to the app, {name}.
-We have {len(TEXTS)} texts to be analyzed.""")
-print('-' * 50)
-number_to_analyse = input(f"Enter a number of the text to be analysed (1-{len(TEXTS)}): ")
-if not number_to_analyse.isdigit():
-    print("Invalid input, terminating the program..")
-    exit()
-else:
-    number = int(number_to_analyse)
-    if number < 1 or number > len(TEXTS):
-        print("Invalid input, terminating the program..")
-        exit()
+
+
+def choose_4_digit_number():
+    """Generate a random 4-digit number with unique digits,
+    where the first digit is not zero.
+    The result is returned as a string."""
+
+    digits = sample(range(1, 10,), 1) + sample(range(10), 3)
+    while True: 
+        digits = sample(range(1, 10), 1) + sample(range(10), 3)
+        if len(set(digits)) == 4:
+            return ''.join(map(str, digits))
+
+def ask_to_play_again() -> bool:
+    """Ask the player if they want to play again. The answer must be: 'Y'/'yes' or 'N'/'no'."""
+    while True:
+        answer = input("Do you want to play again? (yes/no): ").strip().lower()
+        if answer in ("yes", "y"):
+            return True
+        elif answer in("no", "n"):
+            return False
+        else:
+            print("Please answer with 'yes' or 'no'.")
+
+digits = choose_4_digit_number()
+#print(digits) #kontrola
+print("""Hi there!
+-----------------------------------------------
+I've generated a random 4 digit number for you.
+Let's play a bulls and cows game.
+-----------------------------------------------
+      """)
+
+attempts = 0
+start_time = time.time()
+while True:
+    number = input("Enter a number: ")
+    attempts += 1
+    if len(number) != 4:
+        print("The number must have 4 digits. Please enter a different number.")
+        continue
+    elif number.isdigit() is False:
+        print("You have to entry only digits. Please enter a different number.")
+        continue
+    elif number[0] == "0":
+        print("The digit cannot start by 0. Please enter a different number.")
+        continue
+    elif len(number) != len(set(number)):
+        print("Each digit may only appear once in a single guess. Please enter a different number.")
+        continue
+
+    bulls = 0
+    cows = 0
+    for i in range(4):
+        if number[i] == digits[i]:
+            bulls += 1
+        elif number[i] in digits:
+            cows += 1
+    
+    if bulls == 4:
+        if attempts == 1:
+            print("Correct, you've guessed the right number in 1 guess!")
+        else:
+            print(f"Correct, you've guessed the right number in {attempts} guesses!")
+            duration = time.time() - start_time
+            print(f"Time taken: {duration:.2f} seconds.")
+            if ask_to_play_again():
+                digits = choose_4_digit_number()
+                #print(digits)  # kontrola nového čísla
+                attempts = 0
+                start_time = time.time()
+                continue
+            else:
+                print("Game over.")
+                break
+            
+
+            
+
+    if bulls == 1 and cows == 1:
+        print("1 bull, 1 cow")
     else:
-        print("Analyzing text...")
-text = TEXTS[number-1]
-words = []
-import string
-for word in text.split():
-    clean_word = word.strip(string.punctuation)
-    words.append(clean_word)
-print(f"There are {len(words)} words in the selected text.")
-capitalized_words = sum(1 for word in words if word[0].isupper())
-#kontrola velkých písmen
-#capitalized_words_list = [word for word in words if word[0].isupper()]
-#print(capitalized_words_list)
-print(f"There are {capitalized_words} titlecase words.")
-capital_only = sum(1 for word in words if word.isupper())
-print(f"There are {capital_only} uppercase words.")
-lower_only = sum(1 for word in words if word.islower())
-print(f"There are {lower_only} lowercase words.")
-digit = sum(1 for word in words if word.isdigit())
-print(f"There are {digit} numeric strings.")
-sum_of_digits = 0
-for word in words:
-    if word.isdigit():
-        sum_of_digits += int(word)
-print(f"The sum of all the numbers {sum_of_digits}.")
-length_count = {}
-
-for word in words:
-    length = len(word)
-    if length in length_count:
-        length_count[length] += 1
-    else:
-        length_count[length] = 1
-print('-' * 50)
-print(f"{'LEN':>3} | {'OCCURRENCES':<17} | {'NR.':>2}")
-print('-' * 50)
-for length in sorted(length_count):
-    stars = '*' * length_count[length]
-    print(f"{length:>3} | {stars:<17} | {length_count[length]:>2}")
-
+        print(f"{bulls} bulls, {cows} cows")
+        
